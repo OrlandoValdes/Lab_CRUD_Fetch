@@ -176,4 +176,30 @@ class Producto extends DB
         // Devuelve todos los resultados encontrados
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    // Verifica si ya existe un código
+    public function existeCodigo($codigo, $id = null)
+    {
+        if($id)
+        {
+            $sql = "SELECT COUNT(*) total
+                    FROM productos
+                    WHERE codigo = ?
+                    AND id <> ?";
+            
+            $stmt = $this->conexion->prepare($sql);
+            $stmt->execute([$codigo, $id]);
+        }
+        else
+        {
+            $sql = "SELECT COUNT(*) total
+                    FROM productos
+                    WHERE codigo = ?";
+            
+            $stmt = $this->conexion->prepare($sql);
+            $stmt->execute([$codigo]);
+        }
+
+        return $stmt->fetch(PDO::FETCH_ASSOC)['total'] > 0;
+    }
 }

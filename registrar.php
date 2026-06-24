@@ -42,6 +42,20 @@ switch ($accion)
         if(empty($_POST['cantidad']))
             $errores[] = "Debe ingresar la cantidad";
 
+        // Validar precio
+        if($_POST['precio'] < 0)
+            $errores[] = "El precio no puede ser negativo";
+
+        // Validar cantidad
+        if($_POST['cantidad'] < 1)
+            $errores[] = "La cantidad debe ser mayor o igual a 1";
+
+        // Validar código duplicado y crea nueva instancia
+        $p = new Producto();
+
+        if($p->existeCodigo($_POST['codigo']))
+            $errores[] = "El código ya existe";
+
         // Si hay errores, se devuelven y se detiene la ejecución
         if(count($errores) > 0)
         {
@@ -51,9 +65,6 @@ switch ($accion)
             echo json_encode($response);
             exit;
         }
-
-        // Crear instancia del modelo
-        $p = new Producto();
 
         // Asignación de datos al objeto
         $p->codigo = $_POST['codigo'];
@@ -79,7 +90,30 @@ switch ($accion)
     // =========================================
     case "Modificar":
 
-        $p = new Producto();
+        $errores = [];
+
+    // Precio
+    if($_POST['precio'] < 0)
+        $errores[] = "El precio no puede ser negativo";
+
+    // Cantidad
+    if($_POST['cantidad'] < 1)
+        $errores[] = "La cantidad debe ser mayor o igual a 1";
+
+    $p = new Producto();
+
+    // Código repetido (excepto el propio registro)
+    if($p->existeCodigo($_POST['codigo'], $_POST['id']))
+        $errores[] = "El código ya existe";
+
+    if(count($errores) > 0)
+    {
+        echo json_encode([
+            "success" => false,
+            "errors" => $errores
+        ]);
+        exit;
+    }
 
         // Asignación de datos recibidos
         $p->id = $_POST['id'];
